@@ -8,21 +8,20 @@ import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import math
 
-# Reproducibility
 torch.manual_seed(42)
 np.random.seed(42)
 
 # Load dataset
-df = pd.read_csv("AAPL.csv")  # Replace with your filename
+df = pd.read_csv("AAPL.csv") 
 df['Date'] = pd.to_datetime(df['Date'])
 df.set_index('Date', inplace=True)
 data = df[['Close']].copy()
 
-# Scale data
+# Scaling
 scaler = MinMaxScaler()
 scaled_data = scaler.fit_transform(data)
 
-# Sequence creator
+# Sequencing
 SEQ_LEN = 60
 def create_sequences(data, seq_len):
     xs, ys = [], []
@@ -31,7 +30,7 @@ def create_sequences(data, seq_len):
         ys.append(data[i])
     return np.array(xs), np.array(ys)
 
-# Split data
+# Splitting
 train_size = int(len(scaled_data) * 0.8)
 train_data = scaled_data[:train_size]
 test_data = scaled_data[train_size:]
@@ -71,7 +70,7 @@ class LSTMModel(nn.Module):
         )
     def forward(self, x):
         out, _ = self.lstm(x)
-        out = out[:, -1, :]  # Use output of last time step
+        out = out[:, -1, :] 
         out = self.fc(out)
         return out
 
@@ -123,7 +122,3 @@ plt.ylabel('Close Price')
 plt.legend()
 plt.grid()
 plt.show()
-
-# RMSE
-rmse = math.sqrt(mean_squared_error(actual_prices, predicted_prices))
-print(f"Test RMSE: {rmse:.2f}")
